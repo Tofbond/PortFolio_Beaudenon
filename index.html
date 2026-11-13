@@ -2538,7 +2538,40 @@ function showPage(id) {
   const navLink = document.getElementById('nav-' + id);
   if (navLink) navLink.classList.add('active');
   window.scrollTo(0,0);
+  if (typeof updateNavArrows === 'function') updateNavArrows();
 }
+
+// ── Navigation flèches (diaporama) ───────────────────────
+const PAGE_ORDER = ['accueil','stage-irfa','stage-aphp','stage-alphatex','projets','competences','veille','e5','exposes'];
+function navPage(dir){
+  const cur = document.querySelector('.page.active');
+  if(!cur) return;
+  const id = cur.id.replace('page-','');
+  let idx = PAGE_ORDER.indexOf(id);
+  if(idx < 0) return;
+  idx += dir;
+  if(idx < 0 || idx >= PAGE_ORDER.length) return;
+  showPage(PAGE_ORDER[idx]);
+}
+function updateNavArrows(){
+  const cur = document.querySelector('.page.active');
+  const id = cur ? cur.id.replace('page-','') : 'accueil';
+  const idx = PAGE_ORDER.indexOf(id);
+  const L = document.getElementById('nav-arrow-left');
+  const R = document.getElementById('nav-arrow-right');
+  if(L) L.style.display = (idx <= 0) ? 'none' : 'flex';
+  if(R) R.style.display = (idx < 0 || idx >= PAGE_ORDER.length-1) ? 'none' : 'flex';
+}
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const gi = document.getElementById('modal-galerie');
+  const ga = document.getElementById('modal-galerie-aphp');
+  if((gi && gi.style.display === 'flex') || (ga && ga.style.display === 'flex')) return;
+  if(document.querySelector('.modal.active')) return;
+  const t = document.activeElement;
+  if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if(e.key === 'ArrowLeft') navPage(-1); else navPage(1);
+});
 
 // ── CV Tabs ───────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -3056,5 +3089,8 @@ document.addEventListener('keydown', function(e) {
 </div>
 
 <div id="modal-fog" class="modal" onclick="closeModal(event,this)"><div class="modal-box"><button class="modal-close" onclick="document.getElementById('modal-fog').classList.remove('active')">✕</button><h2>🖥️ Migration FOG &amp; Masterisation</h2><p>Migration du serveur FOG vers une nouvelle machine physique dans le cadre du stage à IRFA Formation — parc de postes fixes et portables :</p><ul><li>Contexte : serveur existant sous-dimensionné (4 Go RAM / 150 Go HDD) migré vers nouvelle machine (8 Go RAM / 500 Go HDD)</li><li>Installation d'Ubuntu 24.04 LTS Desktop sur la nouvelle machine physique</li><li>Installation et configuration de FOG Server sur Ubuntu</li><li>Configuration du PXE Boot (options DHCP 66 et 67)</li><li>Création d'images Windows 10 Pro distinctes pour PC fixes (HP Compaq 6200 Pro) et portables</li><li>Déploiement multicast sur le parc — salles 112, 116, 117 (ticket #4763 GLPI)</li><li>Inventaire automatique des postes dans GLPI via agent pré-intégré dans les images</li></ul><div class="modal-tags"><span class="project-tag">FOG Server</span><span class="project-tag">Ubuntu 24.04</span><span class="project-tag">PXE Boot</span><span class="project-tag">Windows 10</span><span class="project-tag">GLPI</span><span class="project-tag">Stage IRFA</span></div></div></div>
+<button id="nav-arrow-left" onclick="navPage(-1)" aria-label="Page précédente" style="position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:500;width:46px;height:46px;border-radius:50%;border:1px solid #30363d;background:rgba(22,27,34,0.82);color:#c9d1d9;font-size:1.5rem;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.borderColor='#58a6ff';this.style.color='#58a6ff'" onmouseout="this.style.borderColor='#30363d';this.style.color='#c9d1d9'">&#8249;</button>
+<button id="nav-arrow-right" onclick="navPage(1)" aria-label="Page suivante" style="position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:500;width:46px;height:46px;border-radius:50%;border:1px solid #30363d;background:rgba(22,27,34,0.82);color:#c9d1d9;font-size:1.5rem;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.borderColor='#58a6ff';this.style.color='#58a6ff'" onmouseout="this.style.borderColor='#30363d';this.style.color='#c9d1d9'">&#8250;</button>
+<script>if(typeof updateNavArrows==='function') updateNavArrows();</script>
 </body>
 </html>
